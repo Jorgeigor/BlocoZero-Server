@@ -6,7 +6,7 @@ Este repositório contém o servidor (API RESTful) do **BlocoZero**, uma platafo
 ![NodeJS](https://img.shields.io/badge/Node.js-18.0+-339933?logo=node.js&style=flat-square)
 ![Express](https://img.shields.io/badge/Express.js-4.0+-000000?logo=express&style=flat-square)
 ![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&style=flat-square)
-![Database](https://img.shields.io/badge/Database-SQL-4479A1?logo=postgresql&style=flat-square)
+![SQLite](https://img.shields.io/badge/SQLite-07405E?style=flat-square&logo=sqlite&logoColor=white)
 
 ## 🚀 Funcionalidades da API
 
