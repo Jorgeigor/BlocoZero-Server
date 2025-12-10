@@ -1,0 +1,485 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+/* ============================================================
+                        ENTERPRISE
+============================================================ */
+
+model Enterprise {
+  id_entreprise Int      @id @default(autoincrement())
+  name          String
+  cnpj          String   @unique
+  address       String
+  phone         String
+  email         String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users User[]
+  works Work[]
+}
+
+/* ============================================================
+                           USER
+============================================================ */
+
+model User {
+  id_user          Int      @id @default(autoincrement())
+  enterprise_id    Int
+  userFunction     String
+  email            String
+  password         String
+  phone            String
+  works            String
+  hourlyRate       Float
+  name             String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  isActive         Boolean
+
+  enterprise       Enterprise         @relation(fields: [enterprise_id], references: [id_entreprise])
+  progressReports  ProgressReport[]
+  budgetReports    BudgetReport[]
+  substageEmployes SubstageEmploye[]
+
+  // 🔵 RELAÇÃO ADICIONADA
+  progressSubstageReports ProgressSubstageReport[]
+}
+
+/* ============================================================
+                           WORK
+============================================================ */
+
+model Work {
+  id_work          Int      @id @default(autoincrement())
+  id_entreprise    Int
+  id_manager       Int
+  id_tender        Int?
+  title            String
+  cnpj             String
+  address          String
+  cep              String
+  budget           Float
+  start_time       DateTime
+  end_time         DateTime
+  describe         String
+  photo            Bytes
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  isActive         Boolean
+
+  enterprise        Enterprise          @relation(fields: [id_entreprise], references: [id_entreprise])
+  budgets           Budget[]
+  physicalSchedules PhysicalSchedule[]
+  financialSchedules FinancialSchedule[]
+  progressReports   ProgressReport[]
+  workStages        WorkStage[]
+  types             Type[]
+  stocks            Stock[]
+
+  // 🔵 RELAÇÃO ADICIONADA
+  progressSubstageReports ProgressSubstageReport[]
+}
+
+/* ============================================================
+                            STAGE
+============================================================ */
+
+model Stage {
+  id_stage          Int      @id @default(autoincrement())
+  name              String
+  progress          Float
+  expStartDate      DateTime
+  expEndDate        DateTime
+  exeStartDate      DateTime?
+  exeEndDate        DateTime?
+
+  physicalSchedules  PhysicalSchedule[]
+  financialSchedules FinancialSchedule[]
+  progressReports    ProgressReport[]
+  budgetReports      BudgetReport[]
+  workStages         WorkStage[]
+  stageSubstages     StageSubstage[]
+  budgets            Budget[]
+
+  // 🔵 RELAÇÃO ADICIONADA
+  progressSubstageReports ProgressSubstageReport[]
+}
+
+/* ============================================================
+                          SUBSTAGE
+============================================================ */
+
+model Substage {
+  id_substage       Int      @id @default(autoincrement())
+  name              String
+  expDuration       DateTime
+  progress          Float
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  stageSubstages    StageSubstage[]
+  substageEmployes  SubstageEmploye[]
+  substageStocks    SubstageStock[]
+  substageSchedules SubstageSchedule[]
+  financialSchedules FinancialSchedule[]
+  substageCategoryTypes SubstageCategoryType[]
+  budgets Budget[]
+
+  // 🔵 RELAÇÃO ADICIONADA
+  progressSubstageReports ProgressSubstageReport[]
+}
+
+/* ============================================================
+                           BUDGET
+============================================================ */
+
+model Budget {
+  id_budget         Int      @id @default(autoincrement())
+  id_work           Int
+  id_category       Int
+  id_type           Int
+  id_stage          Int?
+  id_substage       Int?
+
+  code              String
+  name              String
+  unitMeasure       String
+  cost              Float
+  quantityUsage     Int
+  hours             Float
+  extraHours        Float
+  total             Float
+  Userfunction      String
+  weightLength      Float
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  work     Work     @relation(fields: [id_work], references: [id_work])
+  category Category @relation(fields: [id_category], references: [id_category])
+  type     Type     @relation(fields: [id_type], references: [id_type])
+  stage    Stage?    @relation(fields: [id_stage], references: [id_stage])
+  substage Substage? @relation(fields: [id_substage], references: [id_substage])
+}
+
+/* ============================================================
+                    PHYSICAL SCHEDULE
+============================================================ */
+
+model PhysicalSchedule {
+  id_physicalSchedule Int @id @default(autoincrement())
+  id_work             Int
+  id_stage            Int
+
+  work               Work               @relation(fields: [id_work], references: [id_work])
+  stage              Stage              @relation(fields: [id_stage], references: [id_stage])
+  financialSchedules FinancialSchedule[]
+  substageSchedules  SubstageSchedule[]
+}
+
+/* ============================================================
+                    FINANCIAL SCHEDULE
+============================================================ */
+
+model FinancialSchedule {
+  id_financialSchedule Int @id @default(autoincrement())
+  id_work              Int
+  id_stage             Int
+  id_physicalSchedule  Int
+  id_substage          Int?
+  period               DateTime
+  percentage           Float
+  value                Float
+
+  work             Work             @relation(fields: [id_work], references: [id_work])
+  stage            Stage            @relation(fields: [id_stage], references: [id_stage])
+  physicalSchedule PhysicalSchedule @relation(fields: [id_physicalSchedule], references: [id_physicalSchedule])
+  substage         Substage?        @relation(fields: [id_substage], references: [id_substage])
+}
+
+/* ============================================================
+                     EQUIPMENT REQUEST
+============================================================ */
+
+model EquipmentRequest {
+  id_equipmentRequest Int @id @default(autoincrement())
+  id_type      Int
+  id_category  Int
+  name         String
+  quantity     Int
+
+  type     Type     @relation(fields: [id_type], references: [id_type])
+  category Category @relation(fields: [id_category], references: [id_category])
+}
+
+/* ============================================================
+                            TYPE
+============================================================ */
+
+model Type {
+  id_type     Int @id @default(autoincrement())
+  name        String
+  work_id     Int
+
+  work        Work @relation(fields: [work_id], references: [id_work])
+  categories           Category[]
+  budgets              Budget[]
+  equipmentRequests    EquipmentRequest[]
+  stocks               Stock[]
+  budgetReports        BudgetReport[]
+  substageCategoryTypes SubstageCategoryType[]
+}
+
+/* ============================================================
+                       PROGRESS REPORT
+============================================================ */
+
+model ProgressReport {
+  id_progressReport Int      @id @default(autoincrement())
+  id_work           Int
+  id_user           Int
+  id_stage          Int
+  title             String
+  reportVersion     String
+  createdAt         DateTime @default(now())
+  weather           String
+  startDate         DateTime?
+  endDate           DateTime?
+  note              String
+
+  work Work   @relation(fields: [id_work], references: [id_work])
+  user User   @relation(fields: [id_user], references: [id_user])
+  stage Stage @relation(fields: [id_stage], references: [id_stage])
+}
+
+/* ============================================================
+                       BUDGET REPORT
+============================================================ */
+
+model BudgetReport {
+  id_budgetReport      Int      @id @default(autoincrement())
+  id_type              Int
+  id_user              Int
+  id_stage             Int
+  title                String
+  name                 String
+  referencePeriod      DateTime
+  createdAt            DateTime @default(now())
+  overallPercentage    Float
+  availableBalance     Float
+  plannedValue         Float
+  executedValue        Float
+  financialDeviation   Float
+
+  type  Type  @relation(fields: [id_type], references: [id_type])
+  user  User  @relation(fields: [id_user], references: [id_user])
+  stage Stage @relation(fields: [id_stage], references: [id_stage])
+}
+
+/* ============================================================
+                           STOCK
+============================================================ */
+
+model Stock {
+  id_stock             Int      @id @default(autoincrement())
+  id_type              Int
+  id_category          Int
+  id_work              Int
+  code                 String
+  name                 String
+  unitMeasure          String
+  costUnit             Float?
+  costTotal            Float?
+  stockQuantity        Int
+  weightLength         Float
+  recentInflow         Int
+  cumulativeInflow     Int
+  cumulativeOutflow    Int
+  recentOutflow        Int
+  actualQuantity       Int
+  minQuantity          Int
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  type           Type      @relation(fields: [id_type], references: [id_type])
+  category       Category  @relation(fields: [id_category], references: [id_category])
+  work           Work      @relation(fields: [id_work], references: [id_work])
+
+  materialUsages MaterialUsage[]
+  substageStocks SubstageStock[]
+}
+
+/* ============================================================
+                     MATERIAL USAGE
+============================================================ */
+
+model MaterialUsage {
+  id_materialUsage Int      @id @default(autoincrement())
+  id_stock         Int
+  employee_name    String
+  material_name    String
+  useDate          DateTime
+  code             Int
+  defect           String
+
+  stock Stock @relation(fields: [id_stock], references: [id_stock])
+}
+
+/* ============================================================
+                          CATEGORY
+============================================================ */
+
+model Category {
+  id_category Int @id @default(autoincrement())
+  id_type     Int
+  name        String
+
+  type    Type @relation(fields: [id_type], references: [id_type])
+
+  budgets              Budget[]
+  equipmentRequests    EquipmentRequest[]
+  stocks               Stock[]
+  substageCategoryTypes SubstageCategoryType[]
+}
+
+/* ============================================================
+                         WORK STAGE
+============================================================ */
+
+model WorkStage {
+  workId    Int @map("id_work")
+  stageId   Int @map("id_stage")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  work  Work  @relation(fields: [workId], references: [id_work])
+  stage Stage @relation(fields: [stageId], references: [id_stage])
+
+  @@id([workId, stageId])
+  @@map("work_stage")
+}
+
+/* ============================================================
+                       STAGE SUBSTAGE
+============================================================ */
+
+model StageSubstage {
+  stageId    Int @map("id_stage")
+  substageId Int @map("id_substage")
+
+  stage    Stage    @relation(fields: [stageId], references: [id_stage])
+  substage Substage @relation(fields: [substageId], references: [id_substage])
+
+  @@id([stageId, substageId])
+  @@map("stage_substage")
+}
+
+/* ============================================================
+                     SUBSTAGE EMPLOYE
+============================================================ */
+
+model SubstageEmploye {
+  substageId Int @map("id_substage")
+  userId     Int @map("id_user")
+  hours      Float @default(0)
+  userFunction String @default("none")
+  assignedAt DateTime @default(now())
+
+  substage Substage @relation(fields: [substageId], references: [id_substage])
+  user     User     @relation(fields: [userId], references: [id_user])
+
+  @@id([substageId, userId])
+  @@map("substage_employes")
+}
+
+/* ============================================================
+                       SUBSTAGE STOCK
+============================================================ */
+
+model SubstageStock {
+  substageId      Int @map("id_substage")
+  materialStockId Int @map("id_stock")
+  quantityUsed    Float
+
+  substage      Substage @relation(fields: [substageId], references: [id_substage])
+  materialStock Stock    @relation(fields: [materialStockId], references: [id_stock])
+
+  @@id([substageId, materialStockId])
+  @@map("substage_stock")
+}
+
+/* ============================================================
+                     SUBSTAGE SCHEDULE
+============================================================ */
+
+model SubstageSchedule {
+  id_substageSchedule Int       @id @default(autoincrement())
+  id_substage         Int
+  id_physicalSchedule Int
+
+  expDuration  Float
+  expStartDate DateTime
+  expEndDate   DateTime
+  exeStartDate DateTime?
+  exeEndDate   DateTime?
+  progress     Float     @default(0.0)
+
+  substage         Substage         @relation(fields: [id_substage], references: [id_substage])
+  physicalSchedule PhysicalSchedule @relation(fields: [id_physicalSchedule], references: [id_physicalSchedule])
+
+  @@map("substage_schedule")
+}
+
+/* ============================================================
+                  SUBSTAGE CATEGORY TYPE
+============================================================ */
+
+model SubstageCategoryType {
+  substageId  Int @map("id_substage")
+  categoryId  Int @map("id_category")
+  typeId      Int @map("id_type")
+
+  substage Substage @relation(fields: [substageId], references: [id_substage])
+  category Category @relation(fields: [categoryId], references: [id_category])
+  type     Type     @relation(fields: [typeId], references: [id_type])
+
+  @@id([substageId, categoryId, typeId])
+  @@map("substage_category_type")
+}
+
+/* ============================================================
+               PROGRESS SUBSTAGE REPORT (NOVO)
+============================================================ */
+
+model ProgressSubstageReport {
+  id_progressSubstageReport Int      @id @default(autoincrement())
+
+  id_work     Int
+  id_user     Int
+  id_stage    Int
+  id_substage Int
+
+  startDate   DateTime
+  endDate     DateTime?
+  weather     String
+  completionPercentage Float
+  photo       Bytes?
+  notes       String?
+  status      String
+  managerRejectionReason String?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  work     Work     @relation(fields: [id_work], references: [id_work])
+  user     User     @relation(fields: [id_user], references: [id_user])
+  stage    Stage    @relation(fields: [id_stage], references: [id_stage])
+  substage Substage @relation(fields: [id_substage], references: [id_substage])
+}
