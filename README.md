@@ -44,7 +44,7 @@ A API está organizada em módulos para atender aos diferentes aspectos da gest�
     ```
     ```bash
     npx prisma migrate dev --name init
-    ou
+    # ou
     yarn prisma migrate dev --name init
     ```
 
