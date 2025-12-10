@@ -1,4 +1,4 @@
-# 🏗️ BlocoZero - Backend Server
+# 🏗️ BlocoZero - Server
 
 Este repositório contém o servidor (API RESTful) do **BlocoZero**, uma plataforma SaaS para gestão civil. O sistema gerencia empresas, obras, funcionários, estoques, cronogramas e relatórios de progresso, servindo como a inteligência por trás do frontend.
 
