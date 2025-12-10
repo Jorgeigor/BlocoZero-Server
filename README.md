@@ -42,6 +42,11 @@ A API está organizada em módulos para atender aos diferentes aspectos da gest�
     # ou
     yarn install
     ```
+    ```bash
+    npx prisma migrate dev --name init
+    ou
+    yarn prisma migrate dev --name init
+    ```
 
 3.  **Execute o projeto:**
     ```bash
