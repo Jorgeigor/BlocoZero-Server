@@ -32,7 +32,7 @@
   "phone":"55619999",  
   "works":"aaaaa",  
   "hourlyRate":120.00,  
-  "name":"João Marreta Pinto Rego"  
+  "name":"João Marreta "  
 }
 
 **Listar usuários:**
