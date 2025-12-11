@@ -26,7 +26,7 @@
 
 {  
   "enterprise\_id":1,  
-  "userFunction":"manager", (função do usuário, pode ser engenheiro, gestor, encarregado, etc…)  
+  "userFunction":"manager", (função do usuário, pode ser tender ou manager)  
   "email":"joaomarreta@blocozero.com",  
   "password":"123456",  
   "phone":"55619999",  
